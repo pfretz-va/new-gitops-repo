@@ -1,0 +1,11 @@
+apiVersion: v2
+name: new-app
+description: new application
+type: application
+version: 0.1.0
+appVersion: "1.0"
+
+dependencies:
+- name: dx-universal
+  version: 0.3.0
+  repository: oci://461893774470.dkr.ecr.us-gov-west-1.amazonaws.com

@@ -1,0 +1,13 @@
+{
+    "app": {
+      "name": "new-app",
+      "path": "deploy/new-app",
+      "environments": {
+        "dev": {
+          "target_revision": "HEAD",
+          "auto_sync": "true",
+          "sync_options": "ServerSideApply=true"
+        }
+      }
+    }
+  }

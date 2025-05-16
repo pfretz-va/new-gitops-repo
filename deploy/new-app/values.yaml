@@ -1,0 +1,541 @@
+dx-universal:  
+  deployment:
+    # -- Determines if the deployment is enabled.
+    enabled: true
+    # -- Custom labels to apply to pods.
+    podLabels: {}
+    # -- Number of replicas for the deployment.
+    replicas: 0
+    # -- Resource limits and requests for the deployment.
+    resources: {}
+    # -- Annotations for the Deployment
+    annotations:
+      example.com/pod-annotations: "test-annotations"
+    # -- Extra pod annotations
+    podAnnotations: {}
+    # -- Secrets used to pull images from a private repository.
+    imagePullSecrets: []
+    image:
+      # -- Image repository.
+      repository: ""
+      # -- Image tag.
+      tag: ""
+      # -- Image pull policy
+      pullPolicy: ""
+    # -- Commands to run in the container.
+    command: []
+    port:
+      enabled: true
+    readinessProbe:
+      # -- Determines if the readiness probe is enabled.
+      enabled: false
+      # -- Maximum number of failed probes before marking the pod as Unready.
+      failureThreshold: 3
+      # -- How often (in seconds) to perform the probe.
+      periodSeconds: 10
+      # -- Minimum consecutive successes for the probe to be considered successful after having failed.
+      successThreshold: 1
+      # -- Number of seconds after which the probe times out.
+      timeoutSeconds: 1
+      # -- Number of seconds to wait before starting the probe.
+      initialDelaySeconds: 10
+      # Must specify either one of the following field when enabled
+      httpGet: {}
+      exec: {}
+      tcpSocket: {}
+    livenessProbe:
+      # -- Determines if the liveness probe is enabled.
+      enabled: false
+      # -- Maximum number of failed probes before restarting the container.
+      failureThreshold: 3
+      # -- How often (in seconds) to perform the probe.
+      periodSeconds: 10
+      # -- Minimum consecutive successes for the probe to be considered successful after having failed.
+      successThreshold: 1
+      # -- Number of seconds after which the probe times out.
+      timeoutSeconds: 1
+      # -- Number of seconds to wait before starting the probe.
+      initialDelaySeconds: 10
+      # Must specify either one of the following field when enabled
+      httpGet: {}
+      exec: {}
+      tcpSocket: {}
+    # -- Additional environment variables to set.
+    env: {}
+    # -- Sources to gather additional environment variables from (like ConfigMaps or Secrets).
+    envFrom: []
+    # -- Additional containers to include in the pod.
+    extraContainers: {}
+    # -- Init containers to include in the pod.
+    initContainers: {}
+    # -- Pod-level security attributes and common container settings.
+    podSecurityContext: {}
+    # -- SecurityContext defines the security options the container should be run with. If set, the fields of containerSecurityContext override the equivalent fields of PodSecurityContext.
+    containerSecurityContext: {}
+    # -- volumes
+    volumes: []
+    # -- volumeMounts
+    volumeMounts: []
+  service:
+    # -- Determines if the service is enabled.
+    enabled: true
+    # -- Type of service to create.
+    type: ClusterIP
+    # -- Port on which the service is exposed.
+    port: 80
+
+  rbac:
+    serviceAccount:
+      # -- Determines if a service account should be created.
+      create: true
+      # -- Determines if the service account token should be automatically mounted.
+      automount: true
+      # -- Annotations to add to the service account.
+      annotations: {}
+      # -- Name of the service account to use or create.
+      name: ""
+
+  vault:
+    # -- Secrets configurations for vault.
+    secrets: {}
+
+  fieldExport:
+    # -- Determines if field exporting is enabled.
+    enabled: false
+    # -- Name of the field export.
+    name: ""
+    # -- Type of field export (e.g., ConfigMap).
+    type: "configmap"
+
+  bucket:
+    # -- Determines whether to create an S3 bucket.
+    enabled: false
+    # -- Override default name of Kubernetes resource, otherwise default to release full name.
+    nameOverride: ""
+    # -- Name of S3 bucket, otherwise default to release full name.
+    name: ""
+    lifecycle:
+      # -- Determines if lifecycle management is enabled for the bucket.
+      enabled: true
+      expiration:
+        # -- Number of days after which to expire objects.
+        days: 1
+    versioning:
+      # -- Determines if versioning is enabled for the bucket.
+      enabled: true
+    # -- Additional annotations for the bucket K8s resource.
+    extraAnnotations: {}
+    website:
+      # -- Determines if the bucket should be configured as a website.
+      enabled: false
+      # -- The index page for the website.
+      indexPage: ""
+      # -- The error page for the website.
+      errorPage: ""
+    # -- Encryption settings (e.g., AES256, aws:kms).
+    encryption: ""
+    # -- Bucket access policy settings.
+    policy: ""
+      # {
+      #   "Version": "2012-10-17",
+      #   "Statement": [
+          # {
+          #   "Sid": "PublicReadGetObject",
+          #   "Effect": "Allow",
+          #   "Principal": "*",
+          #   "Action": [
+          #     "s3:GetObject"
+          #   ],
+          #   "Resource": "arn:aws-us-gov:s3:::/*",
+          #   "Condition": {
+          #     "StringEquals": {
+          #       "aws:SourceVpc": ""
+          #     }
+          #   }
+          # }
+      #   ]
+      # }
+
+  istio:
+    virtualService:
+      # -- Gateways to use for the virtual service.
+      gateways: []
+      # -- Hosts included in the virtual service.
+      hosts: []
+      # -- URI paths for the virtual service.
+      uri: ""
+      # -- Path rewrite configuration for the virtual service.
+      rewrite: ""
+
+  argoRollouts:
+    # -- Determines if Argo Rollouts is enabled.
+    enabled: true
+    # -- Define replicas for active service, defaults to 0 as replicas will be controlled by hpa.
+    replicas: 0
+    # -- The maximum time in seconds in which a rollout must make progress during an update, before it is considered to be failed. Defaults to 3600.
+    progressDeadlineSeconds: 3600
+    # -- Whether to abort the update when ProgressDeadlineSeconds is exceeded. Default is true.
+    progressDeadlineAbort: true
+    # -- Minimum number of seconds for which a newly created pod should be ready without any of its container crashing, for it to be considered available. Defaults to 30.
+    minReadySeconds: 30
+    # -- The rollback window provides a way to fast track deployments to previously deployed versions. Defaults to 1.
+    rollbackWindow: 1
+    # -- Additional annotations to add to rollout manifest.
+    extraAnnotations: {}
+    blueGreen:
+      # -- Reference to the workload managed by this rollout.
+      workloadRef: ""
+      # -- Number of replicas for the preview replicaset.
+      previewReplicaCount: 0
+      # -- Enable autoPromotion.
+      autoPromotionEnabled: true
+      # -- Seconds to wait before automatic promotion. Set to 0 to use default Rollouts value.
+      autoPromotionSeconds: 0
+      # -- Delay before scaling down the old revision. Set to 0 to use default Rollouts value.
+      scaleDownDelaySeconds: 0
+      # -- Revision limit for scale down delay. Set to 0 to use default Rollouts value.
+      scaleDownDelayRevisionLimit: 0
+      # -- Delay before aborting a scale down. Set to 0 to use default Rollouts value.
+      abortScaleDownDelaySeconds: 0
+      # -- successfulrunhistorylimit
+      successfulRunHistoryLimit: 0
+      # -- unsuccessfulrunhistorylimit
+      unsuccessfulRunHistoryLimit: 0
+      # -- Analysis templates for rollout metrics.
+      analysisTemplates: {}
+        # httpresp:
+        #   args:
+        #     - name: ""
+        #   metrics:
+        #     - name: endpoint-health
+        #       successCondition: 'true'
+        #       provider:
+        #         web:
+        #           insecure: true
+        #           url: "https://{{ args.host }}{{ args.route }}"
+      analysis:
+        prePromotion:
+          # -- Determines if pre-promotion analysis is enabled.
+          enabled: false
+          # -- Templates for pre-promotion analysis.
+          templates: []
+            # - templateName: ""
+          # -- Arguments for pre-promotion analysis.
+          args: []
+            # - name: ""
+            #   value: ""
+        postPromotion:
+          # -- Determines if post-promotion analysis is enabled.
+          enabled: false
+          # -- Templates for post-promotion analysis.
+          templates: []
+            # - templateName: ""
+          # -- Arguments for post-promotion analysis.
+          args: []
+            # - name: ""
+            #   value: ""
+
+  elasticache:
+    # -- Determines whether to create an Elasticache ReplicationGroup.
+    enabled: false
+    # -- Override default name of Kubernetes resource, otherwise default to release full name.
+    nameOverride: ""
+    # -- Enables multi-AZ deployments for enhanced availability.
+    multiAZ: false
+    auth:
+      # -- Authentication key for ElastiCache.
+      key: ""
+      # -- Name associated with the authentication configuration.
+      name: ""
+      # -- Namespace for the authentication configuration.
+      namespace: ""
+    encryption:
+      atRest:
+        # -- Determines if at-rest encryption is enabled.
+        enabled: true
+      atTransit:
+        # -- Determines if in-transit encryption is enabled.
+        enabled: false
+    # -- Description of the ElastiCache instance.
+    description: ""
+    # -- Name of the ElastiCache instance.
+    name: ""
+    # -- Size of the ElastiCache instance.
+    instanceSize: ""
+    # -- Extra annotations
+    extraAnnotations: {}
+
+  rds:
+  # -- Override default name of Kubernetes resource, otherwise default to release full name.
+    nameOverride: ""
+  # -- Enables automatic minor version upgrades.
+    autoMinorVersionUpgrade: true
+  # -- Enables deletion protection.
+    deletionProtection: false
+  # -- Monitoring interval in seconds.
+    monitoringInterval: 0
+  # -- Retention period for backups in days.
+    retentionPeriod: 7
+  # -- Preferred window for backups.
+    preferredBackupWindow: ""
+  # -- Preferred maintenance window.
+    preferredMaintenanceWindow: ""
+  # -- Key in K8s secret for database password.
+    secretPasswordKey: ""
+  # -- K8s secret name where password key exists.
+    secretPasswordName: ""
+  # -- Master db user.
+    masterUsername: ""
+  # -- Database name.
+    dbName: ""
+  # -- Unique identifier for the database in AWS.
+    dbInstanceidentifier: ""
+  # -- Database engine type.
+    engine: ""
+  # -- Engine version.
+    version: ""
+  # -- Instance class of the RDS instance (eg., db.t4g.micro)
+    instanceClass: ""
+  # -- Additional annotations for the RDS instance.
+    extraAnnotations: {}
+  # -- Enables performance insights.
+    performanceInsightsEnabled: false
+  # -- Base size of the database storage in GB.
+    allocatedStorage: 25
+  # -- Maximum size to which the storage can autoscale in GB.
+    maxAutoScaleSize: 100
+  # -- Port in which db instances are accessible.
+    port: 0
+
+  sns:
+    topic: {}
+      # -- Configuration for SNS topic.
+      # enabled: false
+      # name: ""
+      # displayName: ""
+    subscription: {}
+      # -- Configuration for SNS subscription.
+    # -- Extra annotations
+    extraAnnotations: {}
+
+  pdb:
+    # -- Determines if Pod Disruption Budget is enabled.
+    enabled: true
+    # -- Maximum number of unavailable instances.
+    maxUnavailable: 0
+    # -- Minimum number of available instances.
+    minAvailable: 1
+
+  autoscaling:
+    # -- Determines if autoscaling is enabled.
+    enabled: true
+    # -- Minimum number of replicas.
+    minReplicas: 2
+    # -- Maximum number of replicas.
+    maxReplicas: 10
+    metrics:
+      # -- CPU utilization metrics for autoscaling.
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 800
+      # -- Memory utilization metrics for autoscaling.
+      - type: Resource
+        resource:
+          name: memory
+          target:
+            type: Utilization
+            averageUtilization: 700
+    # -- Autoscaling behavior settings.
+    behavior: {}
+
+  persistence:
+    # -- Determines if pvc is to be created.
+    enabled: false
+    # -- Name override of PVC, defaults to fullname.
+    name: ""
+    # -- Accessmode for PVC, defaults to readWriteOnce.
+    accessMode: ""
+    # -- Size of PVC.
+    storageSize: ""
+    # -- Underlying storageClass to use.
+    storageClass: ""
+    # -- Defines what type of volume is required by the claim
+    volumeMode: ""
+    # -- Binding reference to the PersistentVolume backing this claim.
+    volumeName: ""
+
+  configMaps:
+    # -- Determines if configmaps are to be created.
+    enabled: false
+    # -- Additional labels to add to configmaps.
+    extraLabels: {}
+    # -- Additional annotations to add to configmaps.
+    extraAnnotations: {}
+    # -- Configmaps to create.
+    create: {}
+
+  jobs:
+    - name: ""
+      enabled: false
+      # -- Additional labels to add to the job.
+      extraLabels: {}
+      # -- Additional annotations to add to the job.
+      extraAnnotations: {}
+      # -- Defines activeDeadlineSeconds.
+      activeDeadlineSeconds: 0
+      # -- Defines backoffLimit. Defaults to 6.
+      backoffLimit: 5
+      # -- Defines completionMode. Defaults to NonIndexed.
+      completionMode: "Indexed"
+      # -- Specifies the desired number of successfully finished pods for the job.
+      completions: 1
+      # -- Specifies the maximum desired number of pods to run at any given time.
+      parallelism: 1
+      # -- Limits the lifetime of a Job that has finished execution.
+      ttlSecondsAfterFinished: 30
+      readinessProbe:
+        # -- Determines if the readiness probe is enabled.
+        enabled: false
+        # -- Maximum number of failed probes before marking the pod as Unready.
+        failureThreshold: 3
+        # -- How often (in seconds) to perform the probe.
+        periodSeconds: 10
+        # -- Minimum consecutive successes for the probe to be considered successful after having failed.
+        successThreshold: 1
+        # -- Number of seconds after which the probe times out.
+        timeoutSeconds: 1
+        # -- Number of seconds to wait before starting the probe.
+        initialDelaySeconds: 10
+        # Must specify either one of the following field when enabled
+        httpGet: {}
+        exec: {}
+        tcpSocket: {}
+      livenessProbe:
+        # -- Determines if the liveness probe is enabled.
+        enabled: false
+        # -- Maximum number of failed probes before restarting the container.
+        failureThreshold: 3
+        # -- How often (in seconds) to perform the probe.
+        periodSeconds: 10
+        # -- Minimum consecutive successes for the probe to be considered successful after having failed.
+        successThreshold: 1
+        # -- Number of seconds after which the probe times out.
+        timeoutSeconds: 1
+        # -- Number of seconds to wait before starting the probe.
+        initialDelaySeconds: 10
+        # Must specify either one of the following field when enabled
+        httpGet: {}
+        exec: {}
+        tcpSocket: {}
+      image:
+        # -- Defines repository image for main container.
+        repository: ""
+        # -- Defines image tag for main container.
+        tag: ""
+          # -- Image pull policy for the container.
+      env: []
+      # -- Sources to gather additional environment variables (e.g., ConfigMaps or Secrets).
+      envFrom: []
+      # -- Additional containers to include in the pod.
+      extraContainers: {}
+      # -- Additional init containers to include in the pod.
+      extraInitContainers: {}
+      # -- Commands to run in the container.
+      command: []
+      # -- Arguments to pass to the command.
+      args: []
+      # -- Add port if required
+      ports: {}
+        # - name: http
+        # containerPort: 8080
+
+    - name: "example-job-2"
+      enabled: false
+      extraLabels: {}
+      extraAnnotations: {}
+      activeDeadlineSeconds: 0
+      backoffLimit: 5
+      completionMode: "Indexed"
+      completions: 1
+      parallelism: 1
+      ttlSecondsAfterFinished: 30
+      readinessProbe:
+        enabled: false
+        failureThreshold: 3
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+        initialDelaySeconds: 10
+        httpGet: {}
+        exec: {}
+        tcpSocket: {}
+      livenessProbe:
+        enabled: false
+        failureThreshold: 3
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+        initialDelaySeconds: 10
+        httpGet: {}
+        exec: {}
+        tcpSocket: {}
+      image:
+        repository: ""
+        tag: ""
+        pullPolicy: ""
+      env: []
+      envFrom: []
+      extraContainers: {}
+      extraInitContainers: {}
+      command: []
+      args: []
+
+  cronJob:
+    # -- Defines whether to enable creation of cronJobs
+    enabled: false
+    # -- Defines cronjobs to be created.
+    jobs: {}
+
+  # -- Datadog Unified Service Tagging configuration
+  datadog:
+    # -- The cluster in which you are deploying, e.g. ldx-nonprod-1.
+    env: ""
+    # -- The name of your service.
+    service: ""
+    # -- The version of your service or its helm chart.
+    version: ""
+
+  # -- Dynamodb configuration
+  dynamodb:
+    # -- Defines whether to enable the creation of a Table resource
+    enabled: false
+    # -- Overrides the Kubernetes manifest name, defaults to the name of the release
+    nameOverride: ""
+    # -- REQUIRED: List of attributeName/attributeType
+    attributeDefinitions: []
+    # -- REQUIRED: List of attributeName/keyType
+    keySchema: []
+    # -- REQUIRED: name of table to create
+    tableName: ""
+    # -- unknown
+    readCapacityUnits: 0
+    # -- unknown
+    writeCapacityUnits: 0
+    # -- unknown
+    tableClass: ""
+    # -- Encryption configuration
+    encryption:
+      enabled: false
+      kmsMasterKeyId: ""
+      sseType: ""
+    # -- Deletion protection
+    # deletionProtectionEnabled: true
+    # -- unknown
+    globalSecondaryIndexes: []
+    # -- unknown
+    continuousBackups: false
+    # -- Extra annotations
+    extraAnnotations: {}
